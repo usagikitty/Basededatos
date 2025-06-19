@@ -139,6 +139,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+
 .env
 .venv
 env/
@@ -209,3 +210,4 @@ tags
 [._]*.un~
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,vim,python
+alembic.ini
