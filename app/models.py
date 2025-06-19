@@ -5,6 +5,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from .db import Base
 
+CASCADE_ALL_DELETE_ORPHAN = "all, delete-orphan"
 
 # Tablas de asociación para relaciones muchos a muchos
 jugador_inscripcion = Table(
@@ -35,12 +36,11 @@ class Jugador(Base):
     pais = Column(String)
     asociacion_id = Column(Integer, ForeignKey('asociacion.id'))
     asociacion = relationship('Asociacion', back_populates='jugadores')
-    inscripcion_id = Column(Integer, ForeignKey('inscripcion.id'))
-    inscripcion = relationship('Inscripcion', back_populates='jugadores')
-    equipo_id = Column(Integer, ForeignKey('equipo.id'))
+    # Removed inscripcion_id and equipo_id to avoid conflicting relationships
+    inscripcion = relationship('Inscripcion', secondary=jugador_inscripcion, back_populates='jugadores')
     equipo = relationship('Equipo', back_populates='jugadores')
     participantes_partido = relationship(
-        'Participantes_partido',
+        'ParticipantesPartido',
         secondary=participantes_jugadores,
         back_populates='jugadores'
     )
@@ -51,27 +51,27 @@ class Torneo(Base):
     nombre = Column(String)
     fecha_inicioinscripcion = Column(String)
     fecha_terminoinscripcion = Column(String)
-    fecha_iniciocompe = Column(String)
-    fecha_fincompe = Column(String)
-    inscripciones = relationship('Inscripcion', back_populates='torneo', cascade="all, delete-orphan")
-    equipos = relationship('Equipo', back_populates='torneo', cascade="all, delete-orphan")
-    mesas = relationship('Mesa', back_populates='torneo', cascade="all, delete-orphan")
+    inscripciones = relationship('Inscripcion', back_populates='torneo', cascade=CASCADE_ALL_DELETE_ORPHAN)
+    equipos = relationship('Equipo', back_populates='torneo', cascade=CASCADE_ALL_DELETE_ORPHAN)
+    mesas = relationship('Mesa', back_populates='torneo', cascade=CASCADE_ALL_DELETE_ORPHAN)
+    equipos = relationship('Equipo', back_populates='torneo', cascade=CASCADE_ALL_DELETE_ORPHAN)
+    mesas = relationship('Mesa', back_populates='torneo', cascade=CASCADE_ALL_DELETE_ORPHAN)
 
 class Asociacion(Base):
     __tablename__ = 'asociacion'
     id = Column(Integer, primary_key=True, autoincrement=True)
     nombre = Column(String)
-    ciudad = Column(String)
+    jugadores = relationship('Jugador', back_populates='asociacion', cascade=CASCADE_ALL_DELETE_ORPHAN)
     pais = Column(String)
-    jugadores = relationship('Jugador', back_populates='asociacion', cascade="all, delete-orphan")
+    jugadores = relationship('Jugador', back_populates='asociacion', cascade=CASCADE_ALL_DELETE_ORPHAN)
 
 class Mesa(Base):
     __tablename__ = 'mesa'
     id = Column(Integer, primary_key=True, autoincrement=True)
     numero_mesa = Column(Integer)
-    torneo_id = Column(Integer, ForeignKey('torneo.id'))
+    partidos = relationship('Partido', back_populates='mesa', cascade=CASCADE_ALL_DELETE_ORPHAN)
     torneo = relationship('Torneo', back_populates='mesas')
-    partidos = relationship('Partido', back_populates='mesa', cascade="all, delete-orphan")
+    partidos = relationship('Partido', back_populates='mesa', cascade=CASCADE_ALL_DELETE_ORPHAN)
 
 class Categoria(Base):
     __tablename__ = 'categoria'
@@ -80,35 +80,34 @@ class Categoria(Base):
     edad_min = Column(Integer)
     edad_max = Column(Integer)
     genero = Column(String)
-    sets_partido = Column(String)
-    puntos_set = Column(Integer)
-    inscripciones = relationship('Inscripcion', back_populates='categoria', cascade="all, delete-orphan")
-    equipos = relationship('Equipo', back_populates='categoria', cascade="all, delete-orphan")
+    inscripciones = relationship('Inscripcion', back_populates='categoria', cascade=CASCADE_ALL_DELETE_ORPHAN)
+    equipos = relationship('Equipo', back_populates='categoria', cascade=CASCADE_ALL_DELETE_ORPHAN)
+    inscripciones = relationship('Inscripcion', back_populates='categoria', cascade=CASCADE_ALL_DELETE_ORPHAN)
+    equipos = relationship('Equipo', back_populates='categoria', cascade=CASCADE_ALL_DELETE_ORPHAN)
 
 class Inscripcion(Base):
-    __tablename__ = 'inscripcion'
+    jugadores = relationship('Jugador', secondary=jugador_inscripcion, back_populates='inscripcion', cascade=CASCADE_ALL_DELETE_ORPHAN)
     id = Column(Integer, primary_key=True, autoincrement=True)
-    jugadores = relationship('Jugador', back_populates='inscripcion', cascade="all, delete-orphan")
+    jugadores = relationship('Jugador', secondary=jugador_inscripcion, back_populates='inscripcion', cascade="all, delete")
     torneo_id = Column(Integer, ForeignKey('torneo.id'))
     torneo = relationship('Torneo', back_populates='inscripciones')
     categoria_id = Column(Integer, ForeignKey('categoria.id'))
     categoria = relationship('Categoria', back_populates='inscripciones')
-
 class Equipo(Base):
-    __tablename__ = 'equipo'
+    jugadores = relationship('Jugador', back_populates='equipo', cascade=CASCADE_ALL_DELETE_ORPHAN)
     id = Column(Integer, primary_key=True, autoincrement=True)
-    jugadores = relationship('Jugador', back_populates='equipo', cascade="all, delete-orphan")
+    jugadores = relationship('Jugador', back_populates='equipo', cascade=CASCADE_ALL_DELETE_ORPHAN)
     torneo_id = Column(Integer, ForeignKey('torneo.id'))
     torneo = relationship('Torneo', back_populates='equipos')
     categoria_id = Column(Integer, ForeignKey('categoria.id'))
     categoria = relationship('Categoria', back_populates='equipos')
     participantes_partido = relationship(
-        'Participantes_partido',
+        'ParticipantesPartido',
         secondary=participantes_equipos,
         back_populates='equipos'
     )
 
-class Participantes_partido(Base):
+class ParticipantesPartido(Base):
     __tablename__ = 'participantes_partido'
     id = Column(Integer, primary_key=True, autoincrement=True)
     rol = Column(String)
@@ -133,11 +132,11 @@ class Partido(Base):
     ronda = Column(String)
     grupo = Column(String)
     mesa_id = Column(Integer, ForeignKey('mesa.id'))
-    mesa = relationship('Mesa', back_populates='partidos')
+    resultado_set = relationship('ResultadoSet', back_populates='partido', uselist=False, cascade=CASCADE_ALL_DELETE_ORPHAN)
     resultado_set_id = Column(Integer, ForeignKey('resultado_set.id'), unique=True)
-    resultado_set = relationship('Resultado_set', back_populates='partido', uselist=False, cascade="all, delete-orphan")
+    resultado_set = relationship('ResultadoSet', back_populates='partido', uselist=False, cascade=CASCADE_ALL_DELETE_ORPHAN)
 
-class Resultado_set(Base):
+class ResultadoSet(Base):
     __tablename__ = 'resultado_set'
     id = Column(Integer, primary_key=True, autoincrement=True)
     numero_set = Column(Integer)
