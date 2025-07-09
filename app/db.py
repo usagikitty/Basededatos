@@ -11,6 +11,13 @@ load_dotenv()
 # URI: "postgresql://user:password@localhost:port/dbname"
 DATABASE_URI = os.getenv("DATABASE_URI", "")
 engine = create_engine(DATABASE_URI)
-metadata = MetaData(schema=os.getenv("DATABASE_SCHEMA", "pingpong"))
+metadata = MetaData(schema=os.getenv("DATABASE_SCHEMA", "public"))
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base(metadata=metadata)
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
