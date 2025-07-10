@@ -1,5 +1,7 @@
 # 🏓 Proyecto Base de Datos: SQLAlchemy + Alembic + PostgreSQL
 
+Angel Vargas, Denisse Maldonado, Christopher Navarrete 
+
 Este proyecto utiliza **SQLAlchemy** como ORM y **Alembic** para migraciones, conectando a una base de datos **PostgreSQL**.  
 Incluye estructura para una API con **FastAPI** y ejemplos de CRUD.
 
