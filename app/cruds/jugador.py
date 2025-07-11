@@ -4,10 +4,10 @@ from sqlalchemy.orm import Session      # es la secion activa para manejar la ba
 from ..models import Jugador            # Es el modelo de datos definido en models.py, que representa una tabla en la base de datos
 
 # se crea un nuevo usuario en la base de datos
-def create_jugador(session: Session, nombre: str, fecha_nacimiento: str, genero: str, ciudad: str, pais: str, asociacion_id: Optional[int] = None, inscripcion_id: Optional[int] = None, equipo_id: Optional[int] = None, ):
+def create_jugador(session: Session, nombre: str, fecha_nacimiento: datetime, genero: str, ciudad: str, pais: str, asociacion_id: Optional[int] = None, inscripcion_id: Optional[int] = None, equipo_id: Optional[int] = None, ):
     jugador = Jugador(                                          # se crea una instacia de la clase jugador
         nombre=nombre,
-        fecha_nacimiento=fecha_nacimiento,
+        fecha_nacimiento=fecha_nacimiento.date(),
         genero=genero,
         ciudad=ciudad, 
         pais=pais,
@@ -27,7 +27,7 @@ def get_jugador(session: Session, jugador_id: int):             # se obtiene un 
     return session.get(Jugador, jugador_id)
 
 # se actualizaran los datos de un jugador que se proporcione
-def update_jugador(session: Session, jugador_id: int, nombre: Optional[str] = None, ciudad: Optional[str] = None, pais: Optional[str] = None, equipo_id: Optional[int] = None, asociacion_id: Optional[int] = None, inscripcion_id: Optional[int] = None,):
+def update_jugador(session: Session, jugador_id: int, nombre: Optional[str] = None, ciudad: Optional[str] = None, pais: Optional[str] = None, equipo_id: Optional[int] = None, asociacion_id: Optional[int] = None, inscripcion_id: Optional[int] = None, fecha_nacimiento: Optional[datetime]=None):
     jugador = session.get(Jugador, jugador_id)
     if jugador:
         if nombre is not None:
@@ -42,6 +42,8 @@ def update_jugador(session: Session, jugador_id: int, nombre: Optional[str] = No
             jugador.asociacion_id = asociacion_id
         if inscripcion_id is not None:
             jugador.inscripcion_id = inscripcion_id
+        if fecha_nacimiento is not None:
+            jugador.fecha_nacimiento = fecha_nacimiento.date()
 
         session.commit()
         session.refresh(jugador)

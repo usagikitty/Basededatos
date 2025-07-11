@@ -31,7 +31,7 @@ class Jugador(Base):
     __tablename__ = 'jugador'
     id = Column(Integer, primary_key=True, autoincrement=True)
     nombre = Column(String)
-    fecha_nacimiento = Column(String)
+    fecha_nacimiento = Column(Date)
     genero = Column(String)
     ciudad = Column(String)
     pais = Column(String)
@@ -51,10 +51,10 @@ class Torneo(Base):
     __tablename__ = 'torneo'
     id = Column(Integer, primary_key=True, autoincrement=True)
     nombre = Column(String)
-    fecha_inicioinscripcion = Column(String)
-    fecha_terminoinscripcion = Column(String)
-    fecha_iniciocompe = Column(String)
-    fecha_fincompe = Column(String)
+    fecha_inicioinscripcion = Column(Date)
+    fecha_terminoinscripcion = Column(Date)
+    fecha_iniciocompe = Column(Date)
+    fecha_fincompe = Column(Date)
     inscripciones = relationship('Inscripcion', back_populates='torneo')
     equipos = relationship('Equipo', back_populates='torneo')
     mesas = relationship('Mesa', back_populates='torneo')

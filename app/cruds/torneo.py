@@ -1,23 +1,24 @@
 from typing import Optional
 from sqlalchemy.orm import Session
 from ..models import Torneo
+from datetime import datetime
 
 
 # Crear un nuevo torneo
 def create_torneo(
     session: Session,
     nombre: str,
-    fecha_inicioinscripcion: str,
-    fecha_terminoinscripcion: str,
-    fecha_iniciocompe: str,
-    fecha_fincompe: str,
+    fecha_inicioinscripcion: datetime,
+    fecha_terminoinscripcion: datetime,
+    fecha_iniciocompe: datetime,
+    fecha_fincompe: datetime,
 ):
     torneo = Torneo(
         nombre=nombre,
-        fecha_inicioinscripcion=fecha_inicioinscripcion,
-        fecha_terminoinscripcion=fecha_terminoinscripcion,
-        fecha_iniciocompe=fecha_iniciocompe,
-        fecha_fincompe=fecha_fincompe,
+        fecha_inicioinscripcion=fecha_inicioinscripcion.date(),
+        fecha_terminoinscripcion=fecha_terminoinscripcion.date(),
+        fecha_iniciocompe=fecha_iniciocompe.date(),
+        fecha_fincompe=fecha_fincompe.date(),
     )
     session.add(torneo)
     session.commit()
@@ -40,23 +41,23 @@ def update_torneo(
     session: Session,
     torneo_id: int,
     nombre: Optional[str] = None,
-    fecha_inicioinscripcion: Optional[str] = None,
-    fecha_terminoinscripcion: Optional[str] = None,
-    fecha_iniciocompe: Optional[str] = None,
-    fecha_fincompe: Optional[str] = None,
+    fecha_inicioinscripcion: Optional[datetime] = None,
+    fecha_terminoinscripcion: Optional[datetime] = None,
+    fecha_iniciocompe: Optional[datetime] = None,
+    fecha_fincompe: Optional[datetime] = None,
 ):
     torneo = session.get(Torneo, torneo_id)
     if torneo:
         if nombre is not None:
             torneo.nombre = nombre
         if fecha_inicioinscripcion is not None:
-            torneo.fecha_inicioinscripcion = fecha_inicioinscripcion
+            torneo.fecha_inicioinscripcion = fecha_inicioinscripcion.date()
         if fecha_terminoinscripcion is not None:
-            torneo.fecha_terminoinscripcion = fecha_terminoinscripcion
+            torneo.fecha_terminoinscripcion = fecha_terminoinscripcion.date()
         if fecha_iniciocompe is not None:
-            torneo.fecha_iniciocompe = fecha_iniciocompe
+            torneo.fecha_iniciocompe = fecha_iniciocompe.date()
         if fecha_fincompe is not None:
-            torneo.fecha_fincompe = fecha_fincompe
+            torneo.fecha_fincompe = fecha_fincompe.date()
 
         session.commit()
         session.refresh(torneo)

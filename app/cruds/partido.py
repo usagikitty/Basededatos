@@ -25,13 +25,26 @@ def get_partidos(session: Session):
 def get_partido(session: Session, partido_id: int):
     return session.get(Partido, partido_id)
 
-def update_partido(session: Session, partido_id: int, tipo: Optional[str] = None, fase: Optional[str] = None):
+def update_partido(session: Session, partido_id: int, fecha: Optional[date] = None, hora: Optional[datetime] = None, ronda: Optional[str] = None, grupo: Optional[str] = None, mesa_id: Optional[int] = None, resultado_set_id: Optional[int] = None, tipo: Optional[str] = None, fase: Optional[str] = None):
     partido = session.get(Partido, partido_id)
     if partido:
         if tipo is not None:
             partido.tipo = tipo
+        if fecha is not None:
+            partido.fecha = fecha
+        if hora is not None:
+            partido.hora = hora
         if fase is not None:
             partido.fase = fase
+        if ronda is not None:
+            partido.ronda = ronda
+        if grupo is not None:
+            partido.grupo = grupo
+        if mesa_id is not None:
+            partido.mesa_id = mesa_id
+        if resultado_set_id is not None:
+            partido.resultado_set_id = resultado_set_id
+
         session.commit()
         session.refresh(partido)
     return partido
